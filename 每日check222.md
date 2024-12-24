@@ -36,15 +36,13 @@ ELK：由 **Elasticsearch**、**Logstash** 和 **Kibana** 组成的一套开源�
 
 今日任务 
 
-晨读了spark知识内容
+晨读了hbase知识内容
 
 java的四大特性
 
 封装 继承 多态 抽象
 
-java的数据结构
-
-数组 列表 集合 映射 栈和队列 堆 树 图
+ 
 
  **1.开启服务器和端口代码**
 
@@ -79,3 +77,26 @@ systemctl stop cloudera-scm-agent
 
 封装工具类 利用工具类去编写MySQL数据导出
 
+![1735002002417](C:\Users\许晓楠\AppData\Roaming\Typora\typora-user-images\1735002002417.png)
+
+![1735002134550](C:\Users\许晓楠\AppData\Roaming\Typora\typora-user-images\1735002134550.png)
+
+以上是hbase存储代码 加关闭流程序
+
+
+
+
+
+效果
+
+![1735002177110](C:\Users\许晓楠\AppData\Roaming\Typora\typora-user-images\1735002177110.png)
+
+![1735002220987](C:\Users\许晓楠\AppData\Roaming\Typora\typora-user-images\1735002220987.png)
+
+![1735002274037](C:\Users\许晓楠\AppData\Roaming\Typora\typora-user-images\1735002274037.png)
+
+
+
+
+
+下面打包上传到yarn执行
