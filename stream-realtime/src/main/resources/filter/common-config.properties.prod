@@ -1,0 +1,6 @@
+mysql.host=192.168.10.103
+mysql.database=xxn
+mysql.user=root
+mysql.pwd=root
+kafka.topic.db=test3
+kafka.bootstrap.servers=cdh01:9092,cdh02:9092,cdh03:9092

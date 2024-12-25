@@ -36,83 +36,52 @@ ELK：由 **Elasticsearch**、**Logstash** 和 **Kibana** 组成的一套开源�
 
 今日任务 
 
-晨读了hive的相关知识
+晨读了hdfs知识内容
+
+java的四大特性
+
+封装 继承 多态 抽象
+
+java的数据结构
+
+数组 列表 集合 映射 栈和队列 堆 树 图
+
+HDFS由客户端、名称节点、数据节点辅助名称节点组成；Cient负责响应用户的各种请求比如上
+传、下载等、NameNode负责存储HDFS的元数据和处理用户的读写请求，比如数据块存储在数据节点的哪个地方；数据节点负责存储实际的数据块和数据的读写功能，辅助名称节点主要是辅助名称节点，分相其T
+作量；定期合并fimage和fsedits，推送给名称节点；在紧急情况下，可辅助恢复名称节点
+
+hdfs小文件问题
+
+入库前:数据采集或标准入库之前，将小文件进行合并大文件再上传入库
+存储: Hadoop Archive归档->将多个小文件打包成一个HAR文件，减少对NN内存的使用
+计算方面: CombineTextInputFormat用于将多个小文件在切片过程中生成一个单独的切片或者少量的切片
 
 
 
-**1.安装电脑集群**
+压缩格式
 
-为了方便在家里学习
+gzip压缩:压缩率比较高，而且压缩/解压速度也比较快;但
+是不支持split。当每个文件压缩之后在130M以内的(1个块大
+小内)，都可以考虑用gzip压缩格式
+lzo压缩:压缩/解压速度也比较快，合理的压缩率;支持
+split，是hadoop中最流行的压缩格式。一个很大的文本文
+件，压缩之后还大于200M以上的可以考虑，而且单个文件越
+大，Izo优点越越明显
+snappy压缩:高速压缩速度和合理的压缩率;不支持split;
+压缩率比gzip要低。当mapreduce作业的map输出的数据比较
+大的时候，作为map到reduce的中间数据的压缩格式;或者
+作为一个mapreduce作业的输出和另外一个mapreduce作业
+的输入。
+bzip2压缩:支持split;具有很高的压缩率，比gzip压缩率都
+高;压缩/解压速度慢。适合对速度要求不高，但需要较高的
+压缩率的时候，可以作为mapreduce作业的输出格式。
 
-相当于自己电脑变成一个wifi再去连接
-
-
-
-1.配置虚拟机（三台）
-
-2.jdk激活 分发
-
-3.安装mysql
-
-4.cdh配置 （各种组件需要的数据库）
-
-5.网页问题（金丝雀问题）
-
-https://blog.csdn.net/qq_41106844/article/details/107375448
-
-6.纠删码问题
-
- hdfs配置下的改为none
-
- dfs.namenode.ec.system.default.policy
-
-kafka getway 问题
-
-yum install -y nfs-utils rpcbind 
-
-安装结束后将其运⾏
-rpcbind start
-
-
-
-7.升级zk
-
-https://blog.csdn.net/u010839779/article/details/128964310
-
-8.配置cdh环境变量
-
-已经完成
-
-
-
-2.编写代码 从mysql到kafka的流式flink代码
-
-![1734654682194](C:\Users\许晓楠\AppData\Roaming\Typora\typora-user-images\1734654682194.png)
-
-
-
-这个代码只是连接9999 测试一下是否可以连接
-
-
-
-接下来这是读取mysql数据库中表数据的代码
-
-![1734654722764](C:\Users\许晓楠\AppData\Roaming\Typora\typora-user-images\1734654722764.png)
-
-最后这是读取kafka数据库中topic主题
-
-![1734654759856](C:\Users\许晓楠\AppData\Roaming\Typora\typora-user-images\1734654759856.png)
-
-首先打开cdh集群页面
-
-
-
-开启服务器和端口代码
+ **1.开启服务器和端口代码**
 
 systemctl start cloudera-scm-server（cdh01）
 systemctl start cloudera-scm-agent（cdh01，cdh02，cdh03）
 
-如果开启失败
+**如果开启失败**
 
 查看log tail -f /var/log/cloudera-scm-server/cloudera-scm-server.log
 
@@ -126,21 +95,34 @@ systemctl stop cloudera-scm-agent
 
 
 
-然后讲这个项目打包上传到linux系统中
+ 
 
-执行代码
+**编写日志代码**
 
-export HADOOP_CLASSPATH=$(hadoop classpath)
+![1735088109354](C:\Users\许晓楠\AppData\Roaming\Typora\typora-user-images\1735088109354.png)
+
+1.  获取执行环境 
+2. 配置mysql数据源
+3. 创建基于myysql源的数据流
+
+![1735088121091](C:\Users\许晓楠\AppData\Roaming\Typora\typora-user-images\1735088121091.png)
+
+1.数据格式转换与操作配置
+
+**数据转换**：通过调用 `map` 方法并传入 `JSONObject::parseObject`，意味着对从之前创建的 `stream_db` 这个数据流中的每一条字符串类型的数据（因为 `stream_db` 是 `DataStreamSource<String>` 类型）进行解析，尝试将其转换为 `JSONObject` 格式。
+
+2.维度数据格式转换与输出打印
+
+**数据转换**：和之前对主数据的处理类似，通过 `map` 操作调用 `JSONObject::parseObject` 方法将 `stream_dim` 数据流（从代码上下文推测应该也是从 MySQL 读取的维度相关数据的流，不过此处没有展示其创建过程）中的数据转换为 `JSONObject` 格式，方便后续以 JSON 对象形式进行处理。同样设置了唯一标识符、可读名称以及并行度为 1，作用与之前介绍的对应设置一致，便于任务管理与执行控制
 
 
 
-./bin/flink run-application -t yarn-application -c  a b
+**数据打印**：使用 `print` 方法将转换后的维度数据打印输出，用于调试查看维度数据转换后的内容是否符合预期，不过同样要考虑如之前提到的在生产环境中打印操作的性能影响及输出信息筛选等问题
 
-a代表类名 b代表jar包名称
+3.唯独数据列清洗操作
 
 
 
-之后网页搜索cdh03:8088 打开yarn页面
 
-可以看到工作正在执行中，kafka数据能够进入topic里
 
+目前进程还是在解决报错问题 没有效果

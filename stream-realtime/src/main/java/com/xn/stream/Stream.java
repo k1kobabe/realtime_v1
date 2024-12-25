@@ -18,7 +18,7 @@ public class Stream {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         MySqlSource<String> abc = FlinkCdctomysql.abc(
                 ConfigUtils.getString("mysql.database"),
-                ConfigUtils.getString("mysql.table"),
+                ConfigUtils.getString(""),
                 ConfigUtils.getString("mysql.user"),
                 ConfigUtils.getString("mysql.pwd"),
                 StartupOptions.initial()
